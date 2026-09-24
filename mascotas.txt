@@ -1,0 +1,4 @@
+1|Luna|Perro|Husky|Gris|Mediano|Juriquilla|2026-09-20
+2|Max|Perro|Labrador|Negro|Grande|Centro|2026-09-18
+3|Milo|Gato|Siames|Blanco|Pequeno|El Refugio|2026-09-22
+4|Kira|Perro|Pastor Aleman|Cafe|Grande|Corregidora|2026-09-15
