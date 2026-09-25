@@ -18,6 +18,8 @@ void mostrarMascotas(Mascota mascotas[], int numMascotas) {
     }
 }
 
+//Insertion sort por fecha 
+//Complejidad: O(n^2)
 void ordenarPorFecha(Mascota mascotas[], int numMascotas) {
     for (int i = 1; i < numMascotas; i++) {
         Mascota actual = mascotas[i];
@@ -30,6 +32,8 @@ void ordenarPorFecha(Mascota mascotas[], int numMascotas) {
     }
 }
 
+//Insertion sort por zona 
+//Complejidad: O(n^2)
 void ordenarPorZona(Mascota mascotas[], int numMascotas) {
     for (int i = 1; i < numMascotas; i++) {
         Mascota actual = mascotas[i];
@@ -81,7 +85,7 @@ int main() {
                      color, tamano, zona, fecha);
     mascotas[numMascotas] = nuevaMascota;
     numMascotas++;
-    
+
     }
 
     cout << "Se cargaron " << numMascotas << " mascotas." << endl;
