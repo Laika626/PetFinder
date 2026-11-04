@@ -1,26 +1,40 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <vector>
 #include "mascota.h"
+#include "dlist.h"
 
 using namespace std;
 
-// Mostrar mascotas
-// T(n) = n
-// Complejidad: O(n)
-// La funcion recorre todos los elementos del vector
-// para imprimir la informacion de cada mascota.
-void mostrarMascotas(vector<Mascota> &mascotas) {
-    for (int i = 0; i < mascotas.size(); i++) {
-        cout << mascotas[i].get_id() << " | "
-             << mascotas[i].get_nombre() << " | "
-             << mascotas[i].get_especie() << " | "
-             << mascotas[i].get_raza() << " | "
-             << mascotas[i].get_color() << " | "
-             << mascotas[i].get_tamano() << " | "
-             << mascotas[i].get_zona() << " | "
-             << mascotas[i].get_fecha() << endl;
+void guardarMascotas(DList<Mascota> &listaMascotas,
+                     string nombreArchivo);
+
+// Complejidad de mostrarMascotas:
+// Mejor caso: O(n)
+// Caso promedio: O(n)
+// Peor caso: O(n)
+// La funcion recorre todos los nodos de la DList
+// desde head hasta llegar al final.
+// Cada mascota se consulta e imprime una sola vez.
+// Por lo tanto, la complejidad de mostrarMascotas es O(n).
+void mostrarMascotas(DList<Mascota> &listaMascotas) {
+
+    DLink<Mascota>* actual = listaMascotas.getHead();
+
+    while (actual != 0) {
+
+        Mascota mascota = actual->getValue();
+
+        cout << mascota.get_id() << " | "
+             << mascota.get_nombre() << " | "
+             << mascota.get_especie() << " | "
+             << mascota.get_raza() << " | "
+             << mascota.get_color() << " | "
+             << mascota.get_tamano() << " | "
+             << mascota.get_zona() << " | "
+             << mascota.get_fecha() << endl;
+
+        actual = actual->getNext();
     }
 }
 
@@ -33,117 +47,58 @@ bool compararMascotas(Mascota a, Mascota b, int criterio) {
     }
 }
 
-// Funcion merge
-// Complejidad temporal: O(n)
-// Complejidad espacial: O(n)
-// La funcion copia los elementos de las dos mitades en vectores
-// temporales y despues los recorre para volver a colocarlos
-// ordenados en el vector original.
-// En total se procesan n elementos, por eso el tiempo es O(n).
-// Se utilizan vectores temporales que pueden almacenar en conjunto
-// hasta n elementos, por eso el espacio adicional es O(n).
-void merge(vector<Mascota> &mascotas, int izquierda, int mitad,
-           int derecha, int criterio) {
-
-    vector<Mascota> izquierdaTemp;
-    vector<Mascota> derechaTemp;
-
-    for (int i = izquierda; i <= mitad; i++) {
-        izquierdaTemp.push_back(mascotas[i]);
-    }
-
-    for (int i = mitad + 1; i <= derecha; i++) {
-        derechaTemp.push_back(mascotas[i]);
-    }
-
-    int i = 0;
-    int j = 0;
-    int k = izquierda;
-
-    while (i < izquierdaTemp.size() && j < derechaTemp.size()) {
-
-        if (compararMascotas(izquierdaTemp[i], derechaTemp[j], criterio)) {
-            mascotas[k] = izquierdaTemp[i];
-            i++;
-        }
-        else {
-            mascotas[k] = derechaTemp[j];
-            j++;
-        }
-
-        k++;
-    }
-
-    while (i < izquierdaTemp.size()) {
-        mascotas[k] = izquierdaTemp[i];
-        i++;
-        k++;
-    }
-
-    while (j < derechaTemp.size()) {
-        mascotas[k] = derechaTemp[j];
-        j++;
-        k++;
-    }
-}
-// Merge Sort
-// Mejor caso: O(n log n)
-// Caso promedio: O(n log n)
-// Peor caso: O(n log n)
-// El arreglo se divide en mitades hasta llegar a elementos individuales.
-// Esto genera aproximadamente log n niveles de division.
-// En cada nivel, la funcion merge recorre en total n elementos.
-// Por eso:
-// T(n) = 2T(n/2) + O(n)
-// y la complejidad resultante es:
-// O(n log n)
-void mergeSort(vector<Mascota> &mascotas, int izquierda,
-               int derecha, int criterio) {
-
-    if (izquierda < derecha) {
-        int mitad = (izquierda + derecha) / 2;
-
-        mergeSort(mascotas, izquierda, mitad, criterio);
-        mergeSort(mascotas, mitad + 1, derecha, criterio);
-
-        merge(mascotas, izquierda, mitad, derecha, criterio);
-    }
-}
-
-// Busqueda secuencial por zona
-// T(n) = n
+// Complejidad de buscarPorZona:
 // Mejor caso: O(n)
 // Caso promedio: O(n)
 // Peor caso: O(n)
-// La funcion recorre todas las mascotas del vector,
-// incluso si encuentra una coincidencia, ya que pueden
-// existir varias mascotas registradas en la misma zona.
-void buscarPorZona(vector<Mascota> &mascotas, string zonaBuscada) {
+// La funcion recorre todos los nodos de la DList,
+// ya que pueden existir varias mascotas registradas
+// en la misma zona.
+// Por lo tanto, incluso si encuentra una coincidencia
+// al inicio, continua recorriendo la lista completa.
+// La complejidad de buscarPorZona es O(n).
+void buscarPorZona(DList<Mascota> &listaMascotas, string zonaBuscada) {
+
+    DLink<Mascota>* actual = listaMascotas.getHead();
 
     bool encontrada = false;
 
-    for (int i = 0; i < mascotas.size(); i++) {
+    while (actual != 0) {
 
-        if (mascotas[i].get_zona() == zonaBuscada) {
+        Mascota mascota = actual->getValue();
 
-            cout << mascotas[i].get_id() << " | "
-                 << mascotas[i].get_nombre() << " | "
-                 << mascotas[i].get_especie() << " | "
-                 << mascotas[i].get_raza() << " | "
-                 << mascotas[i].get_color() << " | "
-                 << mascotas[i].get_tamano() << " | "
-                 << mascotas[i].get_zona() << " | "
-                 << mascotas[i].get_fecha() << endl;
+        if (mascota.get_zona() == zonaBuscada) {
+
+            cout << mascota.get_id() << " | "
+                 << mascota.get_nombre() << " | "
+                 << mascota.get_especie() << " | "
+                 << mascota.get_raza() << " | "
+                 << mascota.get_color() << " | "
+                 << mascota.get_tamano() << " | "
+                 << mascota.get_zona() << " | "
+                 << mascota.get_fecha() << endl;
 
             encontrada = true;
         }
+
+        actual = actual->getNext();
     }
 
     if (!encontrada) {
         cout << "No se encontraron mascotas en esa zona." << endl;
     }
 }
-void cargarMascotas(vector<Mascota> &mascotas, string nombreArchivo) {
+
+// Complejidad de cargarMascotas:
+// Mejor caso: O(n)
+// Caso promedio: O(n)
+// Peor caso: O(n)
+// La funcion lee los n registros almacenados en el archivo.
+// Cada mascota se inserta al final de la DList mediante
+// insertion(), cuya complejidad es O(1).
+// n * O(1) = O(n)
+// Por lo tanto, la complejidad de cargarMascotas es O(n).
+void cargarMascotas(DList<Mascota> &listaMascotas, string nombreArchivo){
 
     ifstream archivo(nombreArchivo);
 
@@ -181,24 +136,168 @@ void cargarMascotas(vector<Mascota> &mascotas, string nombreArchivo) {
         Mascota nuevaMascota(id, nombre, especie, raza,
                              color, tamano, zona, fecha);
 
-        mascotas.push_back(nuevaMascota);
+        listaMascotas.insertion(nuevaMascota);
+
+        guardarMascotas(listaMascotas, "mascotas.txt");
+        cout << "Mascota registrada correctamente." << endl;
     }
 
     archivo.close();
 }
 
+// Complejidad de guardarMascotas:
+// Mejor caso: O(n)
+// Caso promedio: O(n)
+// Peor caso: O(n)
+// La funcion recorre todos los nodos de la DList
+// y escribe cada mascota una sola vez en el archivo.
+// Por lo tanto, la complejidad de guardarMascotas es O(n).
+void guardarMascotas(DList<Mascota> &listaMascotas,
+                     string nombreArchivo) {
+
+    ofstream archivo(nombreArchivo);
+
+    if (!archivo.is_open()) {
+        cout << "No se pudo abrir el archivo para guardar." << endl;
+        return;
+    }
+
+    DLink<Mascota>* actual = listaMascotas.getHead();
+
+    while (actual != 0) {
+
+        Mascota mascota = actual->getValue();
+
+        archivo << mascota.get_id() << "|"
+                << mascota.get_nombre() << "|"
+                << mascota.get_especie() << "|"
+                << mascota.get_raza() << "|"
+                << mascota.get_color() << "|"
+                << mascota.get_tamano() << "|"
+                << mascota.get_zona() << "|"
+                << mascota.get_fecha() << endl;
+
+        actual = actual->getNext();
+    }
+
+    archivo.close();
+
+    cout << "Datos guardados correctamente." << endl;
+}
+
+// Complejidad de registrarMascota:
+// Mejor caso: O(n)
+// Caso promedio: O(n)
+// Peor caso: O(n)
+// Crear la nueva mascota e insertarla al final de la DList
+// mediante insertion() tiene complejidad O(1).
+// Despues se llama a guardarMascotas(), que recorre
+// los n nodos para actualizar el archivo y cuesta O(n).
+// O(1) + O(n) = O(n)
+// Por lo tanto, la complejidad final de registrarMascota
+// es O(n).
+void registrarMascota(DList<Mascota> &listaMascotas) {
+
+    int id;
+    string nombre;
+    string especie;
+    string raza;
+    string color;
+    string tamano;
+    string zona;
+    string fecha;
+
+    cout << "ID: ";
+    cin >> id;
+    cin.ignore();
+
+    cout << "Nombre: ";
+    getline(cin, nombre);
+
+    cout << "Especie: ";
+    getline(cin, especie);
+
+    cout << "Raza: ";
+    getline(cin, raza);
+
+    cout << "Color: ";
+    getline(cin, color);
+
+    cout << "Tamano: ";
+    getline(cin, tamano);
+
+    cout << "Zona: ";
+    getline(cin, zona);
+
+    cout << "Fecha (AAAA-MM-DD): ";
+    getline(cin, fecha);
+
+    Mascota nuevaMascota(id, nombre, especie, raza,
+                         color, tamano, zona, fecha);
+
+    listaMascotas.insertion(nuevaMascota);
+
+    guardarMascotas(listaMascotas, "mascotas.txt");
+
+    cout << "Mascota registrada correctamente." << endl;
+}
+
+// Complejidad de eliminarMascota:
+// Mejor caso: O(n)
+// Caso promedio: O(n)
+// Peor caso: O(n)
+// Primero se recorre la DList para encontrar el ID,
+// lo cual puede requerir hasta n comparaciones.
+// Despues se utiliza deleteAt(), que en el peor caso
+// puede recorrer nuevamente hasta n nodos.
+// Finalmente se llama a guardarMascotas(), que recorre
+// toda la lista para actualizar el archivo.
+// O(n) + O(n) + O(n) = O(n)
+// Por lo tanto, la complejidad final de eliminarMascota
+// es O(n).
+void eliminarMascota(DList<Mascota> &listaMascotas) {
+
+    int idBuscado;
+    int posicion = 0;
+    int posicionEncontrada = -1;
+
+    cout << "Ingresa el ID de la mascota que quieres eliminar: ";
+    cin >> idBuscado;
+
+    DLink<Mascota>* actual = listaMascotas.getHead();
+
+    while (actual != 0) {
+
+        Mascota mascota = actual->getValue();
+
+        if (mascota.get_id() == idBuscado) {
+            posicionEncontrada = posicion;
+            break;
+        }
+
+        actual = actual->getNext();
+        posicion++;
+    }
+
+    if (posicionEncontrada == -1) {
+        cout << "No se encontro una mascota con ese ID." << endl;
+        return;
+    }
+
+    listaMascotas.deleteAt(posicionEncontrada);
+
+    guardarMascotas(listaMascotas, "mascotas.txt");
+
+    cout << "Mascota eliminada correctamente." << endl;
+}
+
 int main() {
-    // Estructura principal: vector<Mascota>
-    // Acceso por indice: O(1)
-    // size(): O(1)
-    // Insercion al final con push_back(): O(1) amortizado
-    // En el peor caso, push_back() puede ser O(n) si el vector
-    // necesita aumentar su capacidad y copiar los elementos.
-    vector<Mascota> mascotas;
 
-    cargarMascotas(mascotas, "mascotas.txt");
+    DList<Mascota> listaMascotas;
 
-    cout << "Se cargaron " << mascotas.size() << " mascotas." << endl;
+    cargarMascotas(listaMascotas, "mascotas.txt");
+
+    cout << "Se cargaron " << listaMascotas.getSize() << " mascotas." << endl;
 
     int opcion;
     do {
@@ -207,19 +306,21 @@ int main() {
         cout << "2. Ordenar por fecha" << endl;
         cout << "3. Ordenar por zona" << endl;
         cout << "4. Buscar por zona" << endl;
-        cout << "5. Salir" << endl;
+        cout << "5. Registrar mascota" << endl;
+        cout << "6. Eliminar mascota" << endl;
+        cout << "7. Salir" << endl;
         cout << "Selecciona una opcion: ";
         cin >> opcion;
         if (opcion == 1) {
-            mostrarMascotas(mascotas);
+            mostrarMascotas(listaMascotas);
         }
         else if (opcion == 2) {
-            mergeSort(mascotas, 0, mascotas.size() - 1, 1);
-            mostrarMascotas(mascotas);
+            listaMascotas.mergeSort(1, compararMascotas);
+            mostrarMascotas(listaMascotas);
         }
         else if (opcion == 3) {
-            mergeSort(mascotas, 0, mascotas.size() - 1, 2);
-            mostrarMascotas(mascotas);
+            listaMascotas.mergeSort(2, compararMascotas);
+            mostrarMascotas(listaMascotas);
         }
         else if (opcion == 4) {
             string zonaBuscada;
@@ -228,15 +329,21 @@ int main() {
             cin.ignore();
             getline(cin, zonaBuscada);
 
-            buscarPorZona(mascotas, zonaBuscada);
+            buscarPorZona(listaMascotas, zonaBuscada);
         }
         else if (opcion == 5) {
+            registrarMascota(listaMascotas);
+        }
+        else if (opcion == 6) {
+            eliminarMascota(listaMascotas);
+        }
+        else if (opcion == 7) {
             cout << "Saliendo de PetFinder..." << endl;
         }
         else {
             cout << "Opcion invalida." << endl;
         }
-    } while (opcion != 5);
+    } while (opcion != 7);
 
     return 0;
 }

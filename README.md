@@ -15,7 +15,9 @@ Cada mascota contiene:
 - Zona
 - Fecha del reporte
 
-En este avance, el programa carga los registros desde el archivo `mascotas.txt`, los almacena como objetos de tipo `Mascota` dentro de un `vector` y permite mostrarlos, ordenarlos por fecha o zona y realizar búsquedas por zona.
+En este avance, el programa carga los registros desde el archivo `mascotas.txt`, los almacena como objetos de tipo `Mascota` dentro de una lista doblemente ligada `DList<Mascota>` y permite mostrarlos, ordenarlos por fecha o zona, realizar búsquedas por zona, registrar nuevas mascotas y eliminar registros.
+
+Los cambios realizados al registrar o eliminar una mascota se guardan automáticamente en `mascotas.txt`.
 
 Como corrección del primer avance, se reemplazó Insertion Sort por Merge Sort para utilizar un algoritmo de ordenamiento más eficiente conforme aumente la cantidad de registros.
 
@@ -35,7 +37,7 @@ Ejecutar:
 ./petfinder
 ```
 
-Al iniciar, el programa carga automáticamente la información de `mascotas.txt` y muestra el siguiente menú:
+Al iniciar, el programa carga automáticamente la información almacenada en `mascotas.txt` y muestra el siguiente menú:
 
 ```text
 ===== PETFINDER =====
@@ -43,53 +45,131 @@ Al iniciar, el programa carga automáticamente la información de `mascotas.txt`
 2. Ordenar por fecha
 3. Ordenar por zona
 4. Buscar por zona
-5. Salir
+5. Registrar mascota
+6. Eliminar mascota
+7. Salir
 Selecciona una opcion:
 ```
 
-Las opciones permiten mostrar todos los registros, ordenarlos por fecha, ordenarlos alfabéticamente por zona, buscar mascotas registradas en una zona determinada o salir del programa.
+Las opciones permiten mostrar los registros, ordenarlos, buscar mascotas en una zona, registrar nuevas mascotas, eliminar registros o salir del programa.
 
 ---
 
 ## Estructura de datos
 
-Para almacenar los registros se utiliza:
+Para almacenar las mascotas se utiliza una lista doblemente ligada:
 
 ```cpp
-vector<Mascota> mascotas;
+DList<Mascota> listaMascotas;
 ```
 
-En el primer avance se utilizaba un arreglo con una capacidad máxima de 100 mascotas. En este avance se cambió a `vector` porque la cantidad de registros puede aumentar conforme crezca PetFinder y no es conveniente establecer un límite fijo.
+Cada nodo de la lista contiene un objeto y dos apuntadores:
 
-Las principales operaciones utilizadas son:
+```cpp
+T value;
+DLink<T>* next;
+DLink<T>* prev;
+```
+
+La lista también mantiene:
+
+```cpp
+DLink<T>* head;
+DLink<T>* tail;
+int size;
+```
+
+Se seleccionó `DList` porque PetFinder necesita almacenar una cantidad dinámica de mascotas sin establecer un límite fijo de registros.
+
+Además, la estructura permite recorrer los datos hacia adelante y hacia atrás mediante los apuntadores `next` y `prev`.
+
+---
+
+## Complejidad de la DList
+
+### insertion()
+
+La inserción se realiza directamente al final utilizando `tail`.
 
 ```text
-Acceso por índice: O(1)
-size(): O(1)
-push_back(): O(1) amortizado
-push_back() cuando requiere redimensionamiento: O(n)
-Recorrido completo del vector: O(n)
+Mejor caso: O(1)
+Caso promedio: O(1)
+Peor caso: O(1)
 ```
 
-El acceso por índice también es útil para la implementación de Merge Sort.
+No es necesario recorrer la lista para insertar un nuevo nodo.
+
+### search()
+
+La búsqueda comienza desde `head` y avanza nodo por nodo.
+
+```text
+Mejor caso: O(1)
+Caso promedio: O(n)
+Peor caso: O(n)
+```
+
+El mejor caso ocurre cuando el elemento se encuentra al inicio. El peor caso ocurre cuando está al final o no existe.
+
+### update()
+
+Para actualizar un elemento se recorre la lista desde `head` hasta encontrar el índice indicado.
+
+```text
+Mejor caso: O(1)
+Caso promedio: O(n)
+Peor caso: O(n)
+```
+
+### deleteAt()
+
+Primero se localiza el nodo correspondiente al índice solicitado.
+
+```text
+Mejor caso: O(1)
+Caso promedio: O(n)
+Peor caso: O(n)
+```
+
+Una vez localizado el nodo, la reconexión de los apuntadores `next` y `prev` se realiza en `O(1)`.
+
+### clear()
+
+La función elimina todos los nodos de la lista.
+
+```text
+Mejor caso: O(n)
+Caso promedio: O(n)
+Peor caso: O(n)
+```
+
+### toStringForward() y toStringBackward()
+
+Ambas funciones recorren todos los nodos de la lista.
+
+```text
+O(n)
+```
+
+### getSize(), getHead() y getTail()
+
+Estas funciones regresan directamente un valor o apuntador almacenado.
+
+```text
+O(1)
+```
 
 ---
 
 ## Carga de información
 
-Los registros se cargan desde el archivo:
+Los registros se cargan desde:
 
 ```text
 mascotas.txt
 ```
 
-mediante la función:
-
-```cpp
-cargarMascotas(mascotas, "mascotas.txt");
-```
-
-Cada línea del archivo contiene los datos de una mascota separados por `|`.
+Cada línea contiene una mascota y sus datos están separados por `|`.
 
 Ejemplo:
 
@@ -97,59 +177,62 @@ Ejemplo:
 1|Luna|Perro|Husky|Gris|Mediano|Juriquilla|2026-09-20
 ```
 
-La función recorre los registros del archivo y agrega cada mascota al `vector` utilizando `push_back()`.
+La función `cargarMascotas()` crea un objeto `Mascota` por cada registro y lo inserta en la lista mediante:
 
-Su complejidad es:
-
-```text
-O(n)
+```cpp
+listaMascotas.insertion(nuevaMascota);
 ```
 
-donde `n` representa la cantidad de mascotas almacenadas en el archivo.
+Como se recorren los `n` registros del archivo y cada inserción es `O(1)`:
+
+```text
+Mejor caso: O(n)
+Caso promedio: O(n)
+Peor caso: O(n)
+```
 
 ---
 
 ## Algoritmo de ordenamiento
 
-Como corrección del primer avance, se reemplazó Insertion Sort por **Merge Sort**.
+Para ordenar las mascotas se utiliza Merge Sort adaptado a la lista doblemente ligada.
 
-Merge Sort divide los registros en mitades hasta obtener elementos individuales y posteriormente vuelve a unir las partes de forma ordenada.
+La misma implementación se utiliza para dos criterios:
 
-La misma implementación se utiliza para ordenar con diferentes criterios, evitando tener dos algoritmos prácticamente iguales.
+```text
+1 -> Fecha
+2 -> Zona
+```
+
+Esto evita tener dos algoritmos de ordenamiento duplicados.
 
 ### Ordenamiento por fecha
 
-Cuando el criterio seleccionado es fecha, se comparan los registros mediante:
+Se comparan las fechas de las mascotas.
 
-```cpp
-a.get_fecha() < b.get_fecha()
+Las fechas utilizan el formato:
+
+```text
+AAAA-MM-DD
 ```
 
-Las fechas utilizan el formato `AAAA-MM-DD`, por lo que pueden compararse correctamente como cadenas de texto.
+por lo que pueden compararse correctamente como cadenas de texto.
 
 ### Ordenamiento por zona
 
-Cuando el criterio seleccionado es zona, se utiliza:
-
-```cpp
-a.get_zona() < b.get_zona()
-```
-
-Esto permite ordenar las zonas alfabéticamente.
+Se comparan las zonas para ordenarlas alfabéticamente.
 
 ---
 
-## Análisis de complejidad de Merge Sort
+## Complejidad de Merge Sort
 
-La relación de recurrencia de Merge Sort es:
+Merge Sort divide recursivamente la lista en dos mitades y posteriormente vuelve a unirlas de forma ordenada.
+
+La relación de recurrencia es:
 
 ```text
 T(n) = 2T(n/2) + O(n)
 ```
-
-El algoritmo divide el conjunto de datos en aproximadamente `log n` niveles.
-
-En cada nivel se procesan en total `n` elementos al realizar la combinación de las mitades.
 
 Por lo tanto:
 
@@ -159,65 +242,37 @@ Caso promedio: O(n log n)
 Peor caso: O(n log n)
 ```
 
-La función `merge()` recorre los elementos de las dos mitades para volver a colocarlos en el orden correcto, por lo que tiene complejidad:
+La función `split()` recorre parte de la lista para localizar su punto medio:
 
 ```text
 O(n)
 ```
 
-Además, utiliza vectores temporales para almacenar las dos mitades, por lo que la complejidad espacial adicional es:
+La función `mergeNodes()` combina las mitades ordenadas:
 
 ```text
 O(n)
 ```
 
----
-
-## Búsqueda por zona
-
-PetFinder permite consultar las mascotas registradas en una zona determinada.
-
-La función recorre el `vector` completo porque pueden existir varias mascotas registradas en la misma zona.
-
-Por ejemplo:
+La función completa `mergeSort()` mantiene:
 
 ```text
-Juriquilla
+O(n log n)
 ```
-
-puede regresar uno o varios registros.
-
-La función realiza `n` comparaciones con respecto a la zona buscada, por lo que:
-
-```text
-T(n) = n
-```
-
-y su complejidad es:
-
-```text
-Mejor caso: O(n)
-Caso promedio: O(n)
-Peor caso: O(n)
-```
-
-En esta implementación se recorre todo el vector incluso después de encontrar una coincidencia, ya que pueden existir más mascotas en la misma zona.
 
 ---
 
-## Justificación
+## Justificación del algoritmo
 
-Se seleccionó `vector<Mascota>` porque permite almacenar una cantidad dinámica de registros sin establecer un máximo fijo.
-
-También se reemplazó Insertion Sort por Merge Sort para mejorar la eficiencia del sistema conforme aumente la cantidad de mascotas almacenadas.
-
-Insertion Sort puede tener una complejidad de:
+En el primer avance se utilizó Insertion Sort, cuya complejidad en el peor caso puede llegar a:
 
 ```text
 O(n²)
 ```
 
-mientras que Merge Sort mantiene:
+Se decidió reemplazarlo por Merge Sort porque PetFinder puede aumentar su cantidad de registros.
+
+Merge Sort mantiene:
 
 ```text
 O(n log n)
@@ -225,34 +280,13 @@ O(n log n)
 
 en el mejor caso, caso promedio y peor caso.
 
-La fecha y la zona se mantienen como criterios de ordenamiento porque son datos importantes para un sistema de búsqueda de mascotas perdidas.
-
-La búsqueda por zona también permite consultar información relacionada con la ubicación en la que fue reportada una mascota.
+Esto permite que el algoritmo tenga un mejor comportamiento conforme aumenta la cantidad de mascotas almacenadas.
 
 ---
 
-## SICT0301 - Evalúa los componentes
+## Mostrar mascotas
 
-Se realizó el análisis de complejidad de las principales operaciones utilizadas en el programa.
-
-Para `vector`:
-
-```text
-Acceso por índice: O(1)
-size(): O(1)
-push_back(): O(1) amortizado
-Recorrido completo: O(n)
-```
-
-Para Merge Sort:
-
-```text
-Mejor caso: O(n log n)
-Caso promedio: O(n log n)
-Peor caso: O(n log n)
-```
-
-Para la búsqueda por zona:
+La función `mostrarMascotas()` recorre todos los nodos de la DList desde `head` hasta el final.
 
 ```text
 Mejor caso: O(n)
@@ -260,41 +294,217 @@ Caso promedio: O(n)
 Peor caso: O(n)
 ```
 
-También se analizó la función `merge()`, cuya complejidad temporal es:
+---
+
+## Búsqueda por zona
+
+PetFinder permite consultar todas las mascotas registradas en una zona determinada.
+
+La función recorre la lista completa porque pueden existir varias mascotas registradas en la misma zona.
+
+Por ejemplo:
+
+```text
+Juriquilla
+```
+
+puede regresar varios registros.
+
+Por lo tanto:
+
+```text
+Mejor caso: O(n)
+Caso promedio: O(n)
+Peor caso: O(n)
+```
+
+---
+
+## Registrar mascota
+
+El usuario puede registrar una nueva mascota directamente desde el programa.
+
+Después de solicitar sus datos, se crea un objeto `Mascota` y se inserta mediante:
+
+```cpp
+listaMascotas.insertion(nuevaMascota);
+```
+
+La inserción tiene complejidad:
+
+```text
+O(1)
+```
+
+Después se llama a `guardarMascotas()` para actualizar automáticamente `mascotas.txt`.
+
+Como guardar todos los registros cuesta `O(n)`:
+
+```text
+O(1) + O(n) = O(n)
+```
+
+Por lo tanto:
+
+```text
+Mejor caso: O(n)
+Caso promedio: O(n)
+Peor caso: O(n)
+```
+
+---
+
+## Eliminar mascota
+
+Para eliminar una mascota se solicita su ID.
+
+Primero se recorre la lista para encontrar el registro:
 
 ```text
 O(n)
+```
+
+Después se utiliza:
+
+```cpp
+listaMascotas.deleteAt(posicionEncontrada);
+```
+
+que puede requerir otro recorrido:
+
+```text
+O(n)
+```
+
+Finalmente se actualiza `mascotas.txt`:
+
+```text
+O(n)
+```
+
+Entonces:
+
+```text
+O(n) + O(n) + O(n) = O(n)
+```
+
+Por lo tanto:
+
+```text
+Mejor caso: O(n)
+Caso promedio: O(n)
+Peor caso: O(n)
+```
+
+---
+
+## Escritura de archivos
+
+La función `guardarMascotas()` recorre todos los nodos de la DList y escribe cada mascota en `mascotas.txt`.
+
+```text
+Mejor caso: O(n)
+Caso promedio: O(n)
+Peor caso: O(n)
+```
+
+El archivo se actualiza automáticamente cuando se registra o elimina una mascota.
+
+---
+
+## Complejidad final del programa
+
+Las principales operaciones tienen las siguientes complejidades:
+
+```text
+Cargar mascotas: O(n)
+Mostrar mascotas: O(n)
+Buscar por zona: O(n)
+Registrar mascota: O(n)
+Eliminar mascota: O(n)
+Guardar mascotas: O(n)
+Ordenar con Merge Sort: O(n log n)
+```
+
+Para un flujo donde se cargan, ordenan y muestran los registros:
+
+```text
+O(n) + O(n log n) + O(n)
+```
+
+El término dominante es:
+
+```text
+O(n log n)
+```
+
+Por lo tanto, la complejidad final de ese flujo es:
+
+```text
+O(n log n)
+```
+
+---
+
+## SICT0301 - Evalúa los componentes
+
+Se realizó el análisis de complejidad de la estructura `DList` y de sus principales operaciones.
+
+También se analizaron las funciones:
+
+- `cargarMascotas()`
+- `mostrarMascotas()`
+- `buscarPorZona()`
+- `guardarMascotas()`
+- `registrarMascota()`
+- `eliminarMascota()`
+- Merge Sort
+
+La operación con mayor crecimiento en los flujos que utilizan ordenamiento es:
+
+```text
+O(n log n)
 ```
 
 ---
 
 ## SICT0302 - Toma decisiones
 
-Se seleccionó `vector<Mascota>` porque el número de registros puede aumentar conforme crezca PetFinder.
+Se seleccionó `DList<Mascota>` porque PetFinder necesita una estructura dinámica que permita aumentar la cantidad de registros durante la ejecución.
 
-A diferencia de un arreglo fijo, el `vector` permite agregar nuevos elementos dinámicamente y mantiene acceso por índice en `O(1)`.
+La lista doblemente ligada permite insertar nuevas mascotas sin establecer un tamaño máximo y facilita el recorrido de los registros mediante apuntadores.
 
-También se seleccionó Merge Sort porque presenta una mejor escalabilidad que Insertion Sort.
+También se seleccionó Merge Sort debido a su complejidad de:
 
-Su complejidad de `O(n log n)` permite ordenar una mayor cantidad de registros de forma más eficiente que un algoritmo con complejidad `O(n²)`.
+```text
+O(n log n)
+```
 
-Además, se utiliza un solo algoritmo de ordenamiento con un criterio parametrizado para fecha o zona, evitando duplicar código.
+que presenta una mejor escalabilidad que Insertion Sort con `O(n²)`.
 
 ---
 
 ## SICT0303 - Implementa acciones científicas
 
-El programa permite cargar información directamente desde el archivo:
+PetFinder carga los registros existentes desde:
 
 ```text
 mascotas.txt
 ```
 
-Los registros son convertidos en objetos de tipo `Mascota` y almacenados dentro del `vector`.
+directamente hacia la estructura `DList<Mascota>`.
 
-También se pueden consultar los datos mediante la función de búsqueda por zona.
+El programa permite consultar la información mediante:
 
-Esto permite que el usuario cargue y consulte información utilizando la estructura de datos implementada.
+- Mostrar mascotas.
+- Buscar mascotas por zona.
+
+También permite modificar la estructura mediante:
+
+- Registrar mascotas.
+- Eliminar mascotas.
+
+Cuando se realizan cambios, el archivo `mascotas.txt` se actualiza automáticamente, permitiendo conservar la información después de cerrar el programa.
 
 ---
 
@@ -303,12 +513,16 @@ Esto permite que el usuario cargue y consulte información utilizando la estruct
 PetFinder actualmente permite:
 
 - Cargar mascotas desde `mascotas.txt`.
-- Almacenar objetos de tipo `Mascota` utilizando `vector`.
-- Mostrar todos los registros.
+- Almacenar registros utilizando `DList<Mascota>`.
+- Trabajar con una cantidad dinámica de datos.
+- Mostrar todas las mascotas.
 - Ordenar por fecha utilizando Merge Sort.
 - Ordenar por zona utilizando Merge Sort.
-- Utilizar un solo algoritmo con diferentes criterios de ordenamiento.
+- Utilizar un solo algoritmo con diferentes criterios de comparación.
 - Buscar mascotas por zona.
-- Utilizar un menú interactivo.
-- Detectar opciones inválidas.
-- Analizar la complejidad de las principales operaciones utilizadas.
+- Registrar nuevas mascotas.
+- Guardar automáticamente los registros.
+- Eliminar mascotas.
+- Actualizar automáticamente el archivo después de eliminar.
+- Trabajar con aproximadamente 30 registros de prueba.
+- Analizar la complejidad de la estructura, algoritmos y funciones principales.

@@ -2,6 +2,7 @@
 #define MASCOTA_H   
 
 #include <string>
+#include <iostream>
 
 using namespace std;
 
@@ -91,5 +92,18 @@ class Mascota{
     id = c_id;
     }
 };
+
+ostream& operator<<(ostream& salida, Mascota mascota) {
+    salida << mascota.get_id() << " | "
+           << mascota.get_nombre() << " | "
+           << mascota.get_especie() << " | "
+           << mascota.get_raza() << " | "
+           << mascota.get_color() << " | "
+           << mascota.get_tamano() << " | "
+           << mascota.get_zona() << " | "
+           << mascota.get_fecha();
+
+    return salida;
+}
 
 #endif

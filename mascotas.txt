@@ -2,3 +2,29 @@
 2|Max|Perro|Labrador|Negro|Grande|Centro|2026-09-18
 3|Milo|Gato|Siames|Blanco|Pequeno|El Refugio|2026-09-22
 4|Kira|Perro|Pastor Aleman|Cafe|Grande|Corregidora|2026-09-15
+100|Toby|Perro|Beagle|Cafe|Mediano|Juriquilla|2026-10-01
+101|Nala|Gato|Siames|Blanco|Pequeno|Centro|2026-10-03
+102|Bruno|Perro|Labrador|Negro|Grande|Corregidora|2026-10-05
+103|Mia|Gato|Mestizo|Gris|Pequeno|El Refugio|2026-10-07
+104|Rocky|Perro|Mestizo|Cafe|Mediano|Centro|2026-10-09
+105|Lola|Perro|Pug|Beige|Pequeno|Juriquilla|2026-10-11
+106|Simba|Gato|Mestizo|Naranja|Mediano|El Refugio|2026-10-12
+107|Thor|Perro|Pastor Aleman|Negro|Grande|Corregidora|2026-10-13
+108|Canela|Perro|Mestizo|Cafe|Mediano|Centro|2026-10-14
+109|Coco|Gato|Persa|Blanco|Pequeno|Juriquilla|2026-10-15
+110|Zeus|Perro|Rottweiler|Negro|Grande|El Refugio|2026-10-16
+111|Maya|Perro|Husky|Gris|Grande|Corregidora|2026-10-17
+112|Pelusa|Gato|Mestizo|Blanco|Pequeno|Centro|2026-10-18
+113|Bimba|Perro|Chihuahua|Cafe|Pequeno|Juriquilla|2026-10-19
+114|Oliver|Gato|Mestizo|Negro|Mediano|El Refugio|2026-10-20
+115|Rex|Perro|Doberman|Negro|Grande|Corregidora|2026-10-21
+116|Katy|Gato|Siames|Gris|Pequeno|Centro|2026-10-22
+117|Balu|Perro|Golden Retriever|Dorado|Grande|Juriquilla|2026-10-23
+118|Tom|Gato|Mestizo|Naranja|Mediano|El Refugio|2026-10-24
+119|Loki|Perro|Border Collie|Negro y Blanco|Mediano|Corregidora|2026-10-25
+120|Nina|Perro|Mestizo|Blanco|Mediano|Centro|2026-10-26
+121|Felix|Gato|Mestizo|Negro|Pequeno|Juriquilla|2026-10-27
+122|Maximo|Perro|Boxer|Cafe|Grande|El Refugio|2026-10-28
+123|Sasha|Perro|Husky|Blanco|Grande|Corregidora|2026-10-29
+124|Garfield|Gato|Mestizo|Naranja|Grande|Centro|2026-10-30
+125|Paco|Perro|Schnauzer|Gris|Mediano|Juriquilla|2026-10-31
