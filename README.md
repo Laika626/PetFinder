@@ -470,17 +470,48 @@ O(n log n)
 
 ## SICT0302 - Toma decisiones
 
-Se seleccionó `DList<Mascota>` porque PetFinder necesita una estructura dinámica que permita aumentar la cantidad de registros durante la ejecución.
+Se seleccionó `DList<Mascota>` porque las operaciones principales de PetFinder consisten en recorrer, agregar y eliminar registros, y la cantidad de mascotas puede cambiar durante la ejecución del programa.
 
-La lista doblemente ligada permite insertar nuevas mascotas sin establecer un tamaño máximo y facilita el recorrido de los registros mediante apuntadores.
+Una primera ventaja es que la lista doblemente ligada permite almacenar una cantidad dinámica de mascotas sin establecer una capacidad máxima. Esto es importante porque el número de registros puede crecer conforme los usuarios registran nuevas mascotas.
 
-También se seleccionó Merge Sort debido a su complejidad de:
+Además, la implementación mantiene un apuntador `tail`, por lo que agregar una nueva mascota al final mediante `insertion()` tiene complejidad:
 
 ```text
-O(n log n)
+O(1)
 ```
 
-que presenta una mejor escalabilidad que Insertion Sort con `O(n²)`.
+PetFinder también necesita eliminar registros. En una lista doblemente ligada, una vez localizado el nodo que se quiere eliminar, sus conexiones `prev` y `next` pueden modificarse directamente en:
+
+```text
+O(1)
+```
+
+sin necesidad de desplazar todos los elementos posteriores.
+
+La razón principal por la que una lista doblemente ligada se adapta al problema de PetFinder es que las operaciones más importantes del sistema son principalmente secuenciales. Mostrar mascotas, buscar por zona, cargar registros desde el archivo y guardar los datos requieren recorrer los registros uno por uno, por lo que estas operaciones tienen complejidad:
+
+```text
+O(n)
+```
+
+PetFinder no necesita realizar acceso aleatorio frecuente por posición. En cambio, sí necesita permitir que los registros aumenten, se recorran y se eliminen dinámicamente. Por esta razón, las características de `DList` corresponden directamente con las operaciones que realiza el sistema.
+
+Por lo tanto, la selección de `DList<Mascota>` se basa en las necesidades reales del problema:
+
+- Permite una cantidad dinámica de registros.
+- Permite insertar al final en `O(1)` mediante `tail`.
+- Permite reconectar un nodo eliminado en `O(1)` una vez localizado.
+- Sus recorridos secuenciales `O(n)` coinciden con la forma en que PetFinder consulta y procesa la información.
+
+También se seleccionó Merge Sort como algoritmo de ordenamiento porque presenta:
+
+```text
+Mejor caso: O(n log n)
+Caso promedio: O(n log n)
+Peor caso: O(n log n)
+```
+
+Esto ofrece una mejor escalabilidad que Insertion Sort, cuyo peor caso es `O(n²)`, especialmente conforme aumente el número de mascotas registradas.
 
 ---
 
